@@ -1,0 +1,9 @@
+{
+	"name": "horgeon/simplesamlphp-module-sqlauthphppassword",
+	"description": "An authentication module for SimpleSAMLphp that assumes password hashes are stored cryptographically secure, using PHP's built-in password hasing and verifications functions.",
+	"version": "1.1",
+	"type": "simplesamlphp-module",
+	"require": {
+		"simplesamlphp/composer-module-installer": "~1.0"
+	}
+}
