@@ -1,11 +1,11 @@
-sqlauthBcrypt:SQL
+sqlauthPHPPassword:SQL
 =================
 
 This is an authentication module for [SimpleSAMLphp](http://simplesamlphp.org) to authenticate a user against a SQL database table.
 
-It assumes password hashes and salts are calculated using [bcrypt](http://bcrypt.sourceforge.net/).
+It uses PHP's built-in password_verify functions to securelly store password.
 
-The implementation is based heavily on the SimpleSAMLphp module [sqlauth:SQL](http://simplesamlphp.org/docs/1.7/sqlauth:sql).
+The implementation is based heavily on SimpleSAMLphp modules [sqlauth:SQL](http://simplesamlphp.org/docs/1.7/sqlauth:sql) and [sqlauthBcrypt:SQL](https://github.com/hvirring/simplesamlphp-sqlauthbcrypt).
 
 
 Options
@@ -36,12 +36,12 @@ Examples
 
 Example - MySQL server:
 
-    'bcrypt-example' => array(
-      'sqlauthbcrypt:SQL',
-      'dsn' => 'mysql:host=sql.example.org;dbname=simplesaml',
-      'username' => 'userdb',
-      'password' => 'secretpassword',
+    'phppassword-example' => array(
+      'sqlauthphppassword:SQL',
+      'dsn' => 'mysql:host=<hostname>;dbname=<database name>',
+      'username' => '<database user>',
+      'password' => '<database user password>',
       'hash_column' => 'password_hash',
       'query' => 'SELECT username AS uid, name AS cn, email AS mail, password_hash FROM users WHERE username = :username',
-      'pepper' => '0474f00f7823ade7d10d6797b4ceb591672c3440d92537309cedfc383a98209daf6755c043deb92936797cf74859e6924d0b395a0309950be364928188c7cf0f',
+      'pepper' => '<random string>',
     ),

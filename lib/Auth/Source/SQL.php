@@ -1,18 +1,18 @@
 <?php
 
 /**
- * SQL/bcrypt authentication source
+ * SQL/password_hash/password_verify authentication source
  *
  * This is an authentication module for authenticating a user against a SQL
- * database. It uses bcrypt for validation of passwords against hashed
+ * database. It uses password_verify for validation of passwords against hashed
  * passwords stored in the database. The implementation is based heavily on
- * sqlauth:SQL.
+ * sqlauth:SQL and sqlauthBcrypt:SQL.
  *
  * @author Jesper Hvirring Henriksen, Appinux A/S.
  * @package simpleSAMLphp
  * @version $Id$
  */
-class sspmod_sqlauthBcrypt_Auth_Source_SQL extends sspmod_core_Auth_UserPassBase {
+class sspmod_sqlauthPHPPassword_Auth_Source_SQL extends sspmod_core_Auth_UserPassBase {
 
 
 	/**
@@ -98,7 +98,7 @@ class sspmod_sqlauthBcrypt_Auth_Source_SQL extends sspmod_core_Auth_UserPassBase
 		try {
 			$db = new PDO($this->dsn, $this->username, $this->password);
 		} catch (PDOException $e) {
-			throw new Exception('sqlauthBcrypt:' . $this->authId .
+			throw new Exception('sqlauthPHPPassword:' . $this->authId .
 				': - Failed to connect to \'' . $this->dsn . '\': '. $e->getMessage());
 		}
 
@@ -146,41 +146,41 @@ class sspmod_sqlauthBcrypt_Auth_Source_SQL extends sspmod_core_Auth_UserPassBase
 		try {
 			$sth = $db->prepare($this->query);
 		} catch (PDOException $e) {
-			throw new Exception('sqlauthBcrypt:' . $this->authId .
+			throw new Exception('sqlauthPHPPassword:' . $this->authId .
 				': - Failed to prepare query: ' . $e->getMessage());
 		}
 
 		try {
 			$res = $sth->execute(array('username' => $username));
 		} catch (PDOException $e) {
-			throw new Exception('sqlauthBcrypt:' . $this->authId .
+			throw new Exception('sqlauthPHPPassword:' . $this->authId .
 				': - Failed to execute query: ' . $e->getMessage());
 		}
 
 		try {
 			$data = $sth->fetchAll(PDO::FETCH_ASSOC);
 		} catch (PDOException $e) {
-			throw new Exception('sqlauth:' . $this->authId .
+			throw new Exception('sqlauthPHPPassword:' . $this->authId .
 				': - Failed to fetch result set: ' . $e->getMessage());
 		}
 
-		SimpleSAML_Logger::info('sqlauthBcrypt:' . $this->authId .
+		SimpleSAML_Logger::info('sqlauthPHPPassword:' . $this->authId .
 			': Got ' . count($data) . ' rows from database');
 
 		if (count($data) === 0) {
 			/* No rows returned - invalid username */
-			SimpleSAML_Logger::error('sqlauthBcrypt:' . $this->authId .
-				': No rows in result set. Wrong username or sqlauthBcrypt is misconfigured.');
+			SimpleSAML_Logger::error('sqlauthPHPPassword:' . $this->authId .
+				': No rows in result set. Wrong username or sqlauthPHPPassword is misconfigured.');
 			throw new SimpleSAML_Error_Error('WRONGUSERPASS');
 		}
 
 		/* Validate stored password hash (must be in first row of resultset) */
 		$password_hash = $data[0][$this->hash_column];
 
-		if ($password_hash !== crypt($password.$this->pepper, $password_hash)) {
+		if (!password_verify($password.$this->pepper, $password_hash)) {
 		 /* Invalid password */
-		 SimpleSAML_Logger::error('sqlauthBcrypt:' . $this->authId .
-			 ': Hash does not match. Wrong password or sqlauthBcrypt is misconfigured.');
+		 SimpleSAML_Logger::error('sqlauthPHPPassword:' . $this->authId .
+			 ': Hash does not match. Wrong password or sqlauthPHPPassword is misconfigured.');
 		 throw new SimpleSAML_Error_Error('WRONGUSERPASS');
 		}
 
@@ -216,7 +216,7 @@ class sspmod_sqlauthBcrypt_Auth_Source_SQL extends sspmod_core_Auth_UserPassBase
 			}
 		}
 
-		SimpleSAML_Logger::info('sqlauthBcrypt:' . $this->authId .
+		SimpleSAML_Logger::info('sqlauthPHPPassword:' . $this->authId .
 			': Attributes: ' . implode(',', array_keys($attributes)));
 
 		return $attributes;
