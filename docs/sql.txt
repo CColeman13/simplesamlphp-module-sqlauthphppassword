@@ -45,3 +45,15 @@ Example - MySQL server:
       'query' => 'SELECT username AS uid, name AS cn, email AS mail, password_hash FROM users WHERE username = :username',
       'pepper' => '<random string>',
     ),
+    
+Example - Postgres Nextcloud 12 database (experimental):
+
+     'phppassword-example' => array(
+      'sqlauthphppassword:SQL',
+      'dsn' => 'pgsql:host=<hostname>;dbname=<database name>',
+      'username' => '<database user>',
+      'password' => '<database user password>',
+      'hash_column' => 'password',
+      'query' => "SELECT oc_users.uid, displayname AS cn, password, configvalue AS mail, gid AS memberOf FROM oc_users LEFT JOIN oc_preferences ON oc_users.uid = oc_preferences.userid AND oc_preferences.appid = 'settings' AND oc_preferences.configkey = 'email' LEFT JOIN oc_group_user ON oc_users.uid = oc_group_user.uid WHERE oc_users.uid = :username",
+      'pepper' => '',
+    ),
