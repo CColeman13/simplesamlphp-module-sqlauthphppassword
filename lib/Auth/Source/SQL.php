@@ -177,7 +177,21 @@ class sspmod_sqlauthPHPPassword_Auth_Source_SQL extends sspmod_core_Auth_UserPas
 		/* Validate stored password hash (must be in first row of resultset) */
 		$password_hash = $data[0][$this->hash_column];
 
-		if (!password_verify($password.$this->pepper, $password_hash)) {
+		/* Remove version prefix that is specific to Nextcloud, see Hasher.php in Nextcloud */
+		/* First split the returned value of password_hash into the version and the actual hash */
+                $explodedPassword = explode('|', $password_hash, 2);
+                
+                /* Check Nextcloud version number for compatibility */
+                if((int)$explodedPassword[0] != 1) {
+                        SimpleSAML_Logger::error('sqlauthPHPPassword:' . $this->authId .
+                                ': Nextcloud hash version is not 1. Check compatibility with Nextcloud');
+                        throw new SimpleSAML_Error_Error('WRONGUSERPASS');
+                }
+
+                /* Then then take only the actual hash  and verify it as usual*/
+                $password_hash_only = $explodedPassword[1];
+		
+		if (!password_verify($password.$this->pepper, $password_hash_only)) {
 		 /* Invalid password */
 		 SimpleSAML_Logger::error('sqlauthPHPPassword:' . $this->authId .
 			 ': Hash does not match. Wrong password or sqlauthPHPPassword is misconfigured.');
