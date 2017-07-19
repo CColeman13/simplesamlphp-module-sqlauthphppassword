@@ -1,6 +1,8 @@
 sqlauthPHPPassword:SQL
 =================
 
+WARNING! This version only works with Nextcloud as it contains a hack for the specific password hash implementation of it. It is also not really tested much and don't expect quality code. The Nextcloud developers also do not recommend accessing the database directly like that!
+
 This is an authentication module for [SimpleSAMLphp](http://simplesamlphp.org) to authenticate a user against a SQL database table.
 
 It uses PHP's built-in password_verify functions to securelly store password.
