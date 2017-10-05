@@ -53,6 +53,12 @@ class sspmod_sqlauthPHPPassword_Auth_Source_SQL extends sspmod_core_Auth_UserPas
 	private $hash_column;
 
 	/**
+	 * A flag to set whether or not we need to use NextCloud compatibility or not.
+	 * @var int
+	 */
+	private $next_cloud_compat;
+
+	/**
 	 * Constructor for this authentication source.
 	 *
 	 * @param array $info	 Information about this authentication source.
@@ -86,6 +92,7 @@ class sspmod_sqlauthPHPPassword_Auth_Source_SQL extends sspmod_core_Auth_UserPas
 		$this->query = $config['query'];
 		$this->pepper = $config['pepper'];
 		$this->hash_column = $config['hash_column'];
+		$this->next_cloud_compat = !empty($config['next_cloud_compat'])?$config['next_cloud_compat']:0;
 	}
 
 
@@ -177,6 +184,7 @@ class sspmod_sqlauthPHPPassword_Auth_Source_SQL extends sspmod_core_Auth_UserPas
 		/* Validate stored password hash (must be in first row of resultset) */
 		$password_hash = $data[0][$this->hash_column];
 
+		if ($this->next_cloud_compat) {
 		/* Remove version prefix that is specific to Nextcloud, see Hasher.php in Nextcloud */
 		/* First split the returned value of password_hash into the version and the actual hash */
                 $explodedPassword = explode('|', $password_hash, 2);
@@ -190,6 +198,9 @@ class sspmod_sqlauthPHPPassword_Auth_Source_SQL extends sspmod_core_Auth_UserPas
 
                 /* Then then take only the actual hash  and verify it as usual*/
                 $password_hash_only = $explodedPassword[1];
+		} else {
+			$password_hash_only = $password_hash;
+		}
 		
 		if (!password_verify($password.$this->pepper, $password_hash_only)) {
 		 /* Invalid password */
@@ -237,5 +248,3 @@ class sspmod_sqlauthPHPPassword_Auth_Source_SQL extends sspmod_core_Auth_UserPas
 	}
 
 }
-
-?>
